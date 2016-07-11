@@ -40,6 +40,8 @@ namespace DasQuiz.Pages
             var answer = await DisplayAlert("Start", "Hallo " + spieler.SpielerName + "!\nBist du bereit?", "Ja", "Nein");
             if (answer)
                 await Navigation.PushModalAsync(new GamePage(new QuizViewModel(spieler)));
+            else
+                BenutzerListView.SelectedItem = null;
 
         }
 
@@ -101,10 +103,17 @@ namespace DasQuiz.Pages
                 return;
             }
 
-            SpielerItem spieler = (SpielerItem)BenutzerListView.SelectedItem;
-            DisplayAlert("Spieler gewählt", spieler.SpielerName + spieler.Score, "OK"); // Nur Imp check ob es richtig funktioniert später löschen?
-            // Jetzt init Page mit View Model mit PLayer ITem
-            Navigation.PushModalAsync(new GamePage(new QuizViewModel(spieler)));
+            //    SpielerItem spieler = (SpielerItem)BenutzerListView.SelectedItem;  
+            //    DisplayAlert("Spieler gewählt", spieler.SpielerName + spieler.Score, "OK"); // Nur Imp check ob es richtig funktioniert später löschen?  
+            //    // Jetzt init Page mit View Model mit PLayer ITem  
+            //    Navigation.PushModalAsync(new GamePage(new QuizViewModel(spieler)));  
+        }
+
+        private void MainPage_OnAppearing(object sender, EventArgs e)
+        {
+            //ListeView aktualisieren  
+            var dba = DependencyService.Get<ISQLite>().GetConnection();
+            BenutzerListView.ItemsSource = dba.Table<SpielerItem>();
         }
     }
 }

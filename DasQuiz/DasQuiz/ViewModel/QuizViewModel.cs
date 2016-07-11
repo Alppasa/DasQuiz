@@ -101,7 +101,7 @@ namespace DasQuiz.ViewModel
         {
             get { return thisPlayer.SpielerName; }
         }
-        public string Level { get { return level.ToString(); } }
+        public string Level => $"Level: {level} von 15";
         public string Highscore { get { return thisPlayer.Score; } set { thisPlayer.Score = value; } }
     }
 #endregion

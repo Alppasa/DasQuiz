@@ -11,6 +11,7 @@ namespace DasQuiz.Pages
 {
     public partial class GamePage : ContentPage
     {
+        public bool isTabbed = false;
         public bool time = true;
         private QuizViewModel thisModel;
 
@@ -46,6 +47,8 @@ namespace DasQuiz.Pages
 
         public void TapGestureRecognizer_OnTapped(object sender, EventArgs eventArgs)
         {
+            if (isTabbed) return;
+            isTabbed = true;
             //Stop Countdown
             time = false;
             DependencyService.Get<IAudioService>().PlayCountdown(false);
@@ -123,7 +126,7 @@ namespace DasQuiz.Pages
                 // NEW HIGH SCORE SOUND
                 DependencyService.Get<IAudioService>().PlayHighScore();
 
-                await Task.Delay(2000);
+                await Task.Delay(2500);
                 var answer = await DisplayAlert(
                     $"Glückwunsch {thisModel.Spielername}!",
                     $"Du hast einen neuen Highscore: {thisModel.Score}\nErneut Spielen?", "Ja", "Nein");
@@ -140,7 +143,10 @@ namespace DasQuiz.Pages
                 nextGame = answer;
             }
             if (nextGame)
+            {
+                //await Navigation.PopModalAsync();
                 await Navigation.PushModalAsync(new GamePage(new QuizViewModel(thisModel.thisPlayer)));
+            }
             else
                 await Navigation.PushModalAsync(new MainPage());
         }
@@ -153,12 +159,18 @@ namespace DasQuiz.Pages
 
             var db = new SpielerDatabase();
             db.Update(thisModel.Spielername, thisModel.Score);
+            thisModel.Highscore = thisModel.Score;
+
 
             var answer = await DisplayAlert($"Jetzt bist du Millionär ;) Pkt: {thisModel.Score}", "Erneut Spielen?", "Ja", "Nein");
             if (answer)
+            {
+                await Navigation.PopModalAsync();
                 await Navigation.PushModalAsync(new GamePage(new QuizViewModel(thisModel.thisPlayer)));
+            }
             else
-                await Navigation.PushModalAsync(new MainPage());
+                await Navigation.PopModalAsync();
+            //await Navigation.PushModalAsync(new MainPage());  
         }
 
         public async void OnTimePassed()
@@ -169,15 +181,20 @@ namespace DasQuiz.Pages
 
             var answer = await DisplayAlert($"Zeit ist abgelaufen Pkt: {thisModel.Score}", "Erneut Spielen?", "Ja", "Nein");
             if (answer)
+            {
+                await Navigation.PopModalAsync();
                 await Navigation.PushModalAsync(new GamePage(new QuizViewModel(thisModel.thisPlayer)));
+            }
             else
-                await Navigation.PushModalAsync(new MainPage());
+                await Navigation.PopModalAsync();
+            //await Navigation.PushModalAsync(new MainPage());  
         }
 
-        public void OnNextPressed(object sender, EventArgs e)
+        public async void OnNextPressed(object sender, EventArgs e)
         {
             //Lädt neue Frage mit entsprechendem Level
-            Navigation.PushModalAsync(new GamePage(thisModel));
+            Navigation.PopModalAsync();
+            await Navigation.PushModalAsync(new GamePage(thisModel));
         }
 
         public async void OnCancelPressed(object sender, EventArgs e)
@@ -185,7 +202,8 @@ namespace DasQuiz.Pages
             time = false;
             var answer = await DisplayAlert("Beenden", $" {thisModel.Spielername}, Runde wirklich Beenden?", "Ja", "Nein");
             if (answer)
-                await Navigation.PushModalAsync(new MainPage());
+                await Navigation.PopModalAsync();
+            //await Navigation.PushModalAsync(new MainPage());  
         }
     }
 }

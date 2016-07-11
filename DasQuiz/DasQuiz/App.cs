@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using DasQuiz.Interfaces;
+using DasQuiz.Pages;
 using Xamarin.Forms;
 
 namespace DasQuiz
@@ -12,19 +13,36 @@ namespace DasQuiz
         public App()
         {
             // The root page of your application
-            MainPage = new ContentPage
+            MainPage = new MainPage();
+        }
+
+        //Singelton
+        private static QuizDatabase database;
+        public static QuizDatabase Database
+        {
+            get
             {
-                Content = new StackLayout
+                if (database == null)
                 {
-                    VerticalOptions = LayoutOptions.Center,
-                    Children = {
-                        new Label {
-                            HorizontalTextAlignment = TextAlignment.Center,
-                            Text = "Welcome to Xamarin Forms!"
-                        }
-                    }
+                    database = new QuizDatabase();
                 }
-            };
+                return database;
+            }
+        }
+
+        //Singelton
+        private static SpielerDatabase spielerDatabase;
+
+        public static SpielerDatabase SpielerDatabase
+        {
+            get
+            {
+                if (spielerDatabase == null)
+                {
+                    spielerDatabase = new SpielerDatabase();
+                }
+                return spielerDatabase;
+            }
         }
 
         protected override void OnStart()
